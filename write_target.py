@@ -4,6 +4,7 @@ from datetime import datetime
 from sqlalchemy import create_engine, Table, TextClause
 
 from read_source import SourceFile
+#from dbe import DbEngine
 
 
 class Target:
@@ -17,6 +18,7 @@ class Target:
         logger=None,
     ) -> None:
         self.__engine = create_engine(engine_str, echo=False)
+        #self.__engine = DbEngine.get_dbe()
         self.__source = source
         self.__sqla_target = sqla_target
         self.__preliminary_sql = preliminary_sql

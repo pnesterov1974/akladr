@@ -8,6 +8,7 @@ from datetime import datetime
 from read_source import SourceFile
 from write_target import Target
 #from utils import timeit
+#from dbe import DbEngine
 from loggers import (
     one_logger,
     socrbase_logger,
@@ -64,6 +65,8 @@ MSSQL_ENGINE_STR = r"mssql+pymssql://sa:Exptsci123@192.168.1.78/kladr2"
 # engine in separate class
 # git
 # timeit via decorator
+# concurrent.futures vs mulpiprocessing
+# concurrent.futures vs threading
 
 
 def run_socrbase(logger: logging.Logger) -> int:
@@ -185,6 +188,7 @@ def check_metatada(logger: logging.Logger) -> int:
         logger.debug("Первичное подключение к БД и создание метаданных")
         engine = create_engine(MSSQL_ENGINE_STR, echo=False)
         metadata.create_all(engine)
+        #dbEngine.init_dbe(engine_str=MSSQL_ENGINE_STR)
         logger.debug("Первичное подключение к БД и создание метаданных успешно")
         return True
     except Exception as ex:
@@ -259,16 +263,22 @@ def run_asynch_2() -> None:
 
     with cf.ProcessPoolExecutor() as executor:
         psocrbase = executor.submit(run_socrbase, socrbase_logger)
+        print('Запуск процесса для SocrBase')
         tasks.append(psocrbase)
         paltnames = executor.submit(run_altnames, altnames_logger)
+        print('Запуск процесса для AltNames')
         tasks.append(paltnames)
         pkladr = executor.submit(run_kladr, kladr_logger)
+        print('Запуск процесса для Kladr')
         tasks.append(pkladr)
         pstreet = executor.submit(run_street, street_logger)
+        print('Запуск процесса для Street')
         tasks.append(pstreet)
         pdoma = executor.submit(run_doma, doma_logger)
+        print('Запуск процесса для Doma')
         tasks.append(pdoma)
         pnamemap = executor.submit(run_namemap, namemap_logger)
+        print('Запуск процесса для NameMap')
         tasks.append(pnamemap)
 
         for f in cf.as_completed(tasks):
