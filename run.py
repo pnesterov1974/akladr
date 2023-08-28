@@ -63,10 +63,10 @@ MSSQL_ENGINE_STR = r"mssql+pymssql://sa:Exptsci123@192.168.1.78/kladr2"
 # sql - check data
 # check exception in process
 # engine in separate class
-# git
 # timeit via decorator
 # concurrent.futures vs mulpiprocessing
 # concurrent.futures vs threading
+# logging on screen
 
 
 def run_socrbase(logger: logging.Logger) -> int:
