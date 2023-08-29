@@ -1,9 +1,11 @@
 import logging
 import multiprocessing
 import concurrent.futures as cf
-import time
+#import time
 from pathlib import Path
 from datetime import datetime
+from sqlalchemy import Table
+from sqlalchemy.sql.elements import TextClause
 
 from read_source import SourceFile
 from write_target import Target
@@ -67,6 +69,38 @@ MSSQL_ENGINE_STR = r"mssql+pymssql://sa:Exptsci123@192.168.1.78/kladr2"
 # concurrent.futures vs mulpiprocessing
 # concurrent.futures vs threading
 # logging on screen
+# run_ ^^^   vs class
+# dump to json
+
+class KladrObjectToDB:
+
+    def __init__(self, 
+                 source_filepath: str, 
+                 field_list: list,
+                 engine_str: str,
+                 sqla_target: Table,
+                 preliminary_sql: TextClause,
+                 insert_pack_reccount: int, 
+                 logger: logging.Logger
+                ) -> None:
+        self.__logger = logger
+        self.__source = SourceFile(
+            source_filepath=source_filepath, 
+            field_list=field_list
+            )
+        self.__target = Target(
+            source=self.__source,
+            engine_str=engine_str,
+            sqla_target=sqla_target,
+            preliminary_sql=preliminary_sql,
+            insert_pack_reccount=insert_pack_reccount,
+            logger=self.__logger
+            )
+        
+    def __call__(self):  # __cal__(self, asyncly=False)
+        rows = self.__target.process_sourcefile_threaded(exec_preliminary_sql=True)
+        self.__logger.debug(f"Загрузка SocrBase завершена, всего загружено {rows}")
+        return rows
 
 
 def run_socrbase(logger: logging.Logger) -> int:
@@ -83,7 +117,8 @@ def run_socrbase(logger: logging.Logger) -> int:
         insert_pack_reccount=10000,
         logger=logger,
     )
-    rows = target.process_sourcefile(exec_preliminary_sql=True)
+    #rows = target.process_sourcefile(exec_preliminary_sql=True)
+    rows = target.process_sourcefile_threaded(exec_preliminary_sql=True)
     logger.debug(f"Загрузка SocrBase завершена, всего загружено {rows}")
     return rows
 
@@ -98,10 +133,11 @@ def run_altnames(logger: logging.Logger) -> int:
         engine_str=MSSQL_ENGINE_STR,
         sqla_target=AltNames,
         preliminary_sql=TRUNCATE_AltNames_SQL,
-        insert_pack_reccount=10000,
+        insert_pack_reccount=100000,
         logger=logger,
     )
-    rows = target.process_sourcefile(exec_preliminary_sql=True)
+    #rows = target.process_sourcefile(exec_preliminary_sql=True)
+    rows = target.process_sourcefile_threaded(exec_preliminary_sql=True)
     logger.debug(f"Загрузка AltNames завершена, всего загружено {rows}")
     return rows
 
@@ -116,10 +152,11 @@ def run_kladr(logger: logging.Logger) -> int:
         engine_str=MSSQL_ENGINE_STR,
         sqla_target=Kladr,
         preliminary_sql=TRUNCATE_Kladr_SQL,
-        insert_pack_reccount=50000,
+        insert_pack_reccount=100000,
         logger=logger,
     )
-    rows = target.process_sourcefile(exec_preliminary_sql=True)
+    #rows = target.process_sourcefile(exec_preliminary_sql=True)
+    rows = target.process_sourcefile_threaded(exec_preliminary_sql=True)
     logger.debug(f"Загрузка Kladr завершена, всего загружено {rows}")
     return rows
 
@@ -205,9 +242,9 @@ def run_synch() -> None:
     run_socrbase(logger=one_logger)
     run_altnames(logger=one_logger)
     run_kladr(logger=one_logger)
-    run_street(logger=one_logger)
-    run_doma(logger=one_logger)
-    run_namemap(logger=one_logger)
+    #run_street(logger=one_logger)
+    #run_doma(logger=one_logger)
+    #run_namemap(logger=one_logger)
     t1 = datetime.now()
     td = t1 - t0
     one_logger.debug(f"Синхронный импорт завершен. Общее время {td}")
@@ -290,9 +327,9 @@ def run_asynch_2() -> None:
 
 
 def main():
-    #run_synch()  #Общее время 0:43:23.036586
+    run_synch()  #Общее время 0:43:23.036586
     #run_asynch()  #Общее время 0:33:15.940001
-    run_asynch_2()   #33,766666667
+    #run_asynch_2()   #33,766666667
 
 # ---------------------------------------------------------------------------------------
 if __name__ == "__main__":

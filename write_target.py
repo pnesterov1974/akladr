@@ -1,7 +1,8 @@
 import threading
 from datetime import datetime
 
-from sqlalchemy import create_engine, Table, TextClause
+from sqlalchemy import create_engine, Table 
+from sqlalchemy.sql.elements import TextClause
 
 from read_source import SourceFile
 #from dbe import DbEngine
@@ -65,16 +66,31 @@ class Target:
                     f"Запись пачки размером {len(self.__insert_packs[idx])} в бд: {store_pack}"
                 )
 
-    def __append_pack(self, pack: list) -> None:
-        # в список добавить и вернуть индекс
+    def dump_to_json(self, json_filepath: str):
+        pass
+
+    def __append_pack_new(self, pack: list) -> int:
         self.__insert_packs.append(pack)
         idx = len(self.__insert_packs) - 1
-        print("Запуск нового потока")
-        thread = threading.Thread(
+        return idx
+    
+    def __tread_insert_pack(self, idx: int):
+        t = threading.Thread(
             target=self.__store_insert_pack_to_db_threaded, args={idx}
         )
-        self.__threads.append(thread)
-        thread.start()
+        self.__threads.append(t)
+        t.start()
+
+    #def __append_pack(self, pack: list) -> None:
+        # в список добавить и вернуть индекс
+    #    self.__insert_packs.append(pack)
+    #    idx = len(self.__insert_packs) - 1
+    #    print("Запуск нового потока")
+    #    thread = threading.Thread(
+    #        target=self.__store_insert_pack_to_db_threaded, args={idx}
+    #    )
+    #    self.__threads.append(thread)
+    #    thread.start()
 
     insert_paks = property(lambda self: self.__insert_packs)
 
@@ -92,7 +108,11 @@ class Target:
                 print(f"размер массива {len(rl)} сбор за время {pack_select}")
                 # self.__logger.debug(f'размер массива {len(rl)} сбор за время {pack_select}')
                 # self.__store_insert_pack_to_db(records=rl)
-                self.__append_pack(pack=rl)
+                #self.__append_pack(pack=rl)
+
+                pidx = self.__append_pack_new(pack=rl)
+                self.__tread_insert_pack(pidx)
+
                 rows_total += len(rl)
                 print(f"Объект {self.__sqla_target}, Всего загружено {rows_total}")
                 # self.__logger.debug(f'Объект {self.__sqla_target}, Всего загружено {rows_total}')
@@ -104,14 +124,17 @@ class Target:
             print(f"размер массива {len(rl)} сбор за время {pack_select}")
             # self.__logger.debug(f'размер массива {len(rl)} сбор за время {pack_select}')
             # self.__store_insert_pack_to_db(records=rl)
-            self.__append_pack(pack=rl)
+            #self.__append_pack(pack=rl)
+            
+            pidx = self.__append_pack_new(pack=rl)
+            self.__tread_insert_pack(pidx)
+            
             rows_total += len(rl)
             print(f"Объект {self.__sqla_target}, Всего загружено {rows_total}")
             # self.__logger.debug(f'Объект {self.__sqla_target}, Всего загружено {rows_total}')
-        print('Жду завершения всех потоков')
+        print(f'Жду завершения всех потоков для {self.__sqla_target}')
         for t in self.__threads:
             t.join()
-
         return rows_total
 
     def process_sourcefile(self, exec_preliminary_sql=False) -> int:
@@ -129,6 +152,7 @@ class Target:
                 self.__logger.debug(
                     f"размер массива {len(rl)} сбор за время {pack_select}"
                 )
+                #self.__append_pack_new(pack=rl)
                 self.__store_insert_pack_to_db(records=rl)
                 rows_total += len(rl)
                 # print(f'Объект {self.__sqla_target}, Всего загружено {rows_total}')
