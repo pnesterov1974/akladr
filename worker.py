@@ -14,10 +14,9 @@ class Worker:
                  logger: logging.Logger
                 ) -> None:
         self.__logger = logger
-        source_fieldlist = list(option.FIELD_MAPPING.keys())
         self.__source = SourceFile(
             source_filepath=option.SOURCE_FILEPATH, 
-            field_list=source_fieldlist
+            field_mapping=option.FIELD_MAPPING
             )
         self.__target = Target(
             source=self.__source,
@@ -25,11 +24,12 @@ class Worker:
             sqla_target=option.TARGET_SQLA,
             preliminary_sql=option.PRELIMINARY_SQL,
             insert_pack_reccount=option.RECORD_PACK_FOR_INSERT,
+            field_mapping=option.FIELD_MAPPING,
             logger=self.__logger
             )
         
     def __call__(self):  # __cal__(self, asyncly=False)
-        rows = self.__target.process_sourcefile_threaded(exec_preliminary_sql=True)
+        rows = self.__target.process_sourcefile(exec_preliminary_sql=True)
         self.__logger.debug(f"Загрузка SocrBase завершена, всего загружено {rows}")
         return rows
 

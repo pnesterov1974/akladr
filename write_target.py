@@ -5,7 +5,6 @@ from sqlalchemy import create_engine, Table
 from sqlalchemy.sql.elements import TextClause
 
 from read_source import SourceFile
-#from dbe import DbEngine
 
 
 class Target:
@@ -16,13 +15,14 @@ class Target:
         sqla_target: Table,
         preliminary_sql: TextClause,
         insert_pack_reccount: int,
+        field_mapping: dict,
         logger=None,
     ) -> None:
         self.__engine = create_engine(engine_str, echo=False)
-        #self.__engine = DbEngine.get_dbe()
         self.__source = source
         self.__sqla_target = sqla_target
         self.__preliminary_sql = preliminary_sql
+        self.__field_mapping = field_mapping
         self.__insert_pack_reccount = insert_pack_reccount
         self.__insert_packs = list()
         self.__threads = list()
@@ -48,7 +48,6 @@ class Target:
                 conn.execute(stmt, records)
                 t1 = datetime.now()
                 store_pack = t1 - t0
-                # print(f'Запись пачки размером {len(records)} в бд: {store_pack}')
                 self.__logger.debug(
                     f"Запись пачки размером {len(records)} в бд: {store_pack}"
                 )
@@ -61,7 +60,6 @@ class Target:
                 conn.execute(stmt, self.__insert_packs[idx])
                 t1 = datetime.now()
                 store_pack = t1 - t0
-                # print(f'Запись пачки размером {len(records)} в бд: {store_pack}')
                 self.__logger.debug(
                     f"Запись пачки размером {len(self.__insert_packs[idx])} в бд: {store_pack}"
                 )
@@ -92,7 +90,7 @@ class Target:
     #    self.__threads.append(thread)
     #    thread.start()
 
-    insert_paks = property(lambda self: self.__insert_packs)
+    #insert_paks = property(lambda self: self.__insert_packs)
 
     def process_sourcefile_threaded(self, exec_preliminary_sql=False) -> int:
         if exec_preliminary_sql:
@@ -136,6 +134,16 @@ class Target:
         for t in self.__threads:
             t.join()
         return rows_total
+    
+    def __apply_field_mapping(self, record: dict) -> dict:
+        new_record = dict()
+        print(record, type(record))
+        for k, v in record.items():
+            new_field_name = self.__field_mapping[k]
+            new_record[new_field_name] = v
+        print(new_record, type(new_record))
+        #d = {self.__field_mapping[k]: v for k, v in record.items()}
+        return new_record
 
     def process_sourcefile(self, exec_preliminary_sql=False) -> int:
         if exec_preliminary_sql:
@@ -144,7 +152,10 @@ class Target:
         rl = list()
         rows_total = 0
         for r in self.__source:
-            rl.append(r)
+            rr = {self.__field_mapping[k]: v for k, v in r.items()}
+            rl.append(rr)
+            # if len(rl)<5:
+            #     self.apply_field_mapping(r)
             if len(rl) >= self.__insert_pack_reccount:
                 t1 = datetime.now()
                 pack_select = t1 - t0

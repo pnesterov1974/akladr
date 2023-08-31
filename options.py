@@ -19,6 +19,7 @@ SOURCE_FOLDERPATH = (
     Path("/") / "home" / "pnesterov" / "my_dev" / "files" / "kladr" / "dbf"
 )
 
+
 class OptionBase:
     SOURCE_FILEPATH = SOURCE_FOLDERPATH
     FIELD_MAPPING = {}
@@ -26,13 +27,14 @@ class OptionBase:
     PRELIMINARY_SQL = None
     RECORD_PACK_FOR_INSERT = 0
 
+
 class SocBaseOption(OptionBase):
     SOURCE_FILEPATH = SOURCE_FOLDERPATH / "SOCRBASE.DBF"
     FIELD_MAPPING = {
-        "level": "Level", 
-        "scname": 'ScName', 
-        "socrname": "SocrName", 
-        "kod_t_st": "KodTST"
+        "level": "Level",
+        "scname": "ScName",
+        "socrname": "SocrName",
+        "kod_t_st": "KodTST",
     }
     TARGET_SQLA = SocrBase
     PRELIMINARY_SQL = TRUNCATE_SocrBase_SQL
@@ -41,73 +43,75 @@ class SocBaseOption(OptionBase):
 
 class AltNamesOption:
     SOURCE_FILEPATH = SOURCE_FOLDERPATH / "ALTNAMES.DBF"
-    FIELD_MAPPING = {
-        "oldcode": "OldCode",
-        "newcode": "NewCode",
-        "level": "Level"
-    }
+    FIELD_MAPPING = {"oldcode": "OldCode", "newcode": "NewCode", "level": "Level"}
     TARGET_SQLA = AltNames
     PRELIMINARY_SQL = TRUNCATE_AltNames_SQL
     RECORD_PACK_FOR_INSERT = 10000
 
+
 class KladrOption:
     SOURCE_FILEPATH = SOURCE_FOLDERPATH / "KLADR.DBF"
     FIELD_MAPPING = {
-        "name": "Name", 
-        "socr": "Socr", 
-        "code": "Code", 
-        "index": "Index", 
-        "gninmb": "Gninmb", 
-        "uno": "Uno", 
-        "ocatd": "Ocatd", 
-        "status": "Status"
-        }
+        "name": "Name",
+        "socr": "Socr",
+        "code": "Code",
+        "index": "Index",
+        "gninmb": "Gninmb",
+        "uno": "Uno",
+        "ocatd": "Ocatd",
+        "status": "Status",
+    }
     TARGET_SQLA = Kladr
     PRELIMINARY_SQL = TRUNCATE_Kladr_SQL
     RECORD_PACK_FOR_INSERT = 100000
 
+
 class StreetOption:
     SOURCE_FILEPATH = SOURCE_FOLDERPATH / "STREET.DBF"
     FIELD_MAPPING = {
-        "name": "Name", 
-        "socr": "Socr", 
-        "code": "Code", 
-        "index": "Index", 
-        "gninmb": "Gninmb", 
-        "uno": "Uno", 
-        "ocatd": "Ocatd"
-        }
+        "name": "Name",
+        "socr": "Socr",
+        "code": "Code",
+        "index": "Index",
+        "gninmb": "Gninmb",
+        "uno": "Uno",
+        "ocatd": "Ocatd",
+    }
     TARGET_SQLA = Street
     PRELIMINARY_SQL = TRUNCATE_Street_SQL
     RECORD_PACK_FOR_INSERT = 100000
+
 
 class DomaOption:
     SOURCE_FILEPATH = SOURCE_FOLDERPATH / "DOMA.DBF"
     FIELD_MAPPING = {
         "name": "Name",
-        "korp": "Korp", 
-        "socr": "Socr", 
-        "code": "Code", 
-        "index": "Index", 
-        "gninmb": "Gninmb", 
-        "uno": "Uno", 
-        "ocatd": "Ocatd"
+        "korp": "Korp",
+        "socr": "Socr",
+        "code": "Code",
+        "index": "Index",
+        "gninmb": "Gninmb",
+        "uno": "Uno",
+        "ocatd": "Ocatd",
     }
     TARGET_SQLA = Doma
     PRELIMINARY_SQL = TRUNCATE_Doma_SQL
     RECORD_PACK_FOR_INSERT = 100000
 
+
 class NameMapOption:
     SOURCE_FILEPATH = SOURCE_FOLDERPATH / "NAMEMAP.DBF"
     FIELD_MAPPING = {
-        "code": "Code", 
-        "name": "Name", 
-        "shname": "ShName", 
-        "scname": "ScName"
+        "code": "Code",
+        "name": "Name",
+        "shname": "ShName",
+        "scname": "ScName",
     }
     TARGET_SQLA = NameMap
     PRELIMINARY_SQL = TRUNCATE_NameMap_SQL
     RECORD_PACK_FOR_INSERT = 100000
 
+
 # ---------------------------------------------------------------------------------------
-if __name__ == "__main__": pass
+if __name__ == "__main__":
+    pass
