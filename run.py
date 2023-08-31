@@ -37,7 +37,7 @@ from model_mssql import (
 )
 from sqlalchemy import create_engine, text
 
-SOURCE_FOLDERPATH = p = (
+SOURCE_FOLDERPATH = (
     Path("/") / "home" / "pnesterov" / "my_dev" / "files" / "kladr" / "dbf"
 )
 
@@ -59,7 +59,8 @@ MSSQL_ENGINE_STR = r"mssql+pymssql://sa:Exptsci123@192.168.1.78/kladr2"
 
 # TODO:
 #      store_pack_to_db - rows affected
-#      Mapping {sourceFieldName: targetDbFieldName}
+#      Mapping {sourceFieldName: targetDbFieldName}, OPTIONS
+#      WORKER
 #      t-f
 #      + logging
 # sql - check data
@@ -72,36 +73,57 @@ MSSQL_ENGINE_STR = r"mssql+pymssql://sa:Exptsci123@192.168.1.78/kladr2"
 # run_ ^^^   vs class
 # dump to json
 
-class KladrObjectToDB:
+SOCRBASE_FIELD_MAPPING = {
+    "level": "Level", 
+    "scname": 'ScName', 
+    "socrname": "SocrName", 
+    "kod_t_st": "KodTST"
+}
 
-    def __init__(self, 
-                 source_filepath: str, 
-                 field_list: list,
-                 engine_str: str,
-                 sqla_target: Table,
-                 preliminary_sql: TextClause,
-                 insert_pack_reccount: int, 
-                 logger: logging.Logger
-                ) -> None:
-        self.__logger = logger
-        self.__source = SourceFile(
-            source_filepath=source_filepath, 
-            field_list=field_list
-            )
-        self.__target = Target(
-            source=self.__source,
-            engine_str=engine_str,
-            sqla_target=sqla_target,
-            preliminary_sql=preliminary_sql,
-            insert_pack_reccount=insert_pack_reccount,
-            logger=self.__logger
-            )
-        
-    def __call__(self):  # __cal__(self, asyncly=False)
-        rows = self.__target.process_sourcefile_threaded(exec_preliminary_sql=True)
-        self.__logger.debug(f"Загрузка SocrBase завершена, всего загружено {rows}")
-        return rows
+ALTNAMES_FIELD_MAPPING = {
+    "oldcode": "OldCode",
+    "newcode": "NewCode",
+    "level": "Level"
+}
 
+KLADR_FIELD_MAPPING = {
+    "name": "Name", 
+    "socr": "Socr", 
+    "code": "Code", 
+    "index": "Index", 
+    "gninmb": "Gninmb", 
+    "uno": "Uno", 
+    "ocatd": "Ocatd", 
+    "status": "Status"
+}
+
+STREET_FIELD_MAPPING = {
+      "name": "Name", 
+      "socr": "Socr", 
+      "code": "Code", 
+      "index": "Index", 
+      "gninmb": "Gninmb", 
+      "uno": "Uno", 
+      "ocatd": "Ocatd"
+}
+
+DOMA_FIELD_MAPPING = {
+     "name": "Name",
+     "korp": "Korp", 
+     "socr": "Socr", 
+     "code": "Code", 
+     "index": "Index", 
+     "gninmb": "Gninmb", 
+     "uno": "Uno", 
+     "ocatd": "Ocatd"
+}
+
+NAMEMAP_FIELD_MAPPING = {
+     "code": "Code", 
+     "name": "Name", 
+     "shname": "ShName", 
+     "scname": "ScName"
+}
 
 def run_socrbase(logger: logging.Logger) -> int:
     logger.debug("Начало загрузки SocrBase")
