@@ -1,23 +1,20 @@
 from sqlalchemy import create_engine
 
-from model_mssql import metadata
-
-class DbEngine:
-    DBEngine = None
+class DBEngine:
+    DBE = None
 
     @classmethod
-    def init_dbe(cls, engine_str: str):
-        print(f"Инициализация db engine...")
-        cls.DBEngine = create_engine(engine_str, echo=False)
-        metadata.create_all(cls.DBEngine)
+    def init_dbe(cls, connection_string: str):
+        cls.DBE = create_engine(url=connection_string)
 
     @classmethod
-    def get_dbe(cls):
-        if cls.DBEngine:
-            print(cls.DBEngine)
-            return cls.DBEngine
+    def dbe(cls):
+        if cls.DBE:
+            return cls.DBE
         else:
-            raise ValueError('NO CONNECTION !!')
+            raise ValueError('NO CONNECTION !!!')
+
 
 # ---------------------------------------------------------------------------------------
-if __name__ == "__main__": pass
+if __name__ == "__main__":
+    pass

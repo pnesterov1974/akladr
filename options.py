@@ -21,6 +21,7 @@ SOURCE_FOLDERPATH = (
 
 
 class OptionBase:
+    CAPTION = ''
     SOURCE_FILEPATH = SOURCE_FOLDERPATH
     FIELD_MAPPING = {}
     TARGET_SQLA = None
@@ -29,6 +30,7 @@ class OptionBase:
 
 
 class SocBaseOption(OptionBase):
+    CAPTION = "SocrBase"
     SOURCE_FILEPATH = SOURCE_FOLDERPATH / "SOCRBASE.DBF"
     FIELD_MAPPING = {
         "level": "Level",
@@ -42,6 +44,7 @@ class SocBaseOption(OptionBase):
 
 
 class AltNamesOption:
+    CAPTION = "AltNames"
     SOURCE_FILEPATH = SOURCE_FOLDERPATH / "ALTNAMES.DBF"
     FIELD_MAPPING = {"oldcode": "OldCode", "newcode": "NewCode", "level": "Level"}
     TARGET_SQLA = AltNames
@@ -50,6 +53,7 @@ class AltNamesOption:
 
 
 class KladrOption:
+    CAPTION = "Kladr"
     SOURCE_FILEPATH = SOURCE_FOLDERPATH / "KLADR.DBF"
     FIELD_MAPPING = {
         "name": "Name",
@@ -67,6 +71,7 @@ class KladrOption:
 
 
 class StreetOption:
+    CAPTION = "Street"
     SOURCE_FILEPATH = SOURCE_FOLDERPATH / "STREET.DBF"
     FIELD_MAPPING = {
         "name": "Name",
@@ -83,6 +88,7 @@ class StreetOption:
 
 
 class DomaOption:
+    CAPTION = "Doma"
     SOURCE_FILEPATH = SOURCE_FOLDERPATH / "DOMA.DBF"
     FIELD_MAPPING = {
         "name": "Name",
@@ -100,6 +106,7 @@ class DomaOption:
 
 
 class NameMapOption:
+    CAPTION = "NameMap"
     SOURCE_FILEPATH = SOURCE_FOLDERPATH / "NAMEMAP.DBF"
     FIELD_MAPPING = {
         "code": "Code",
@@ -111,7 +118,9 @@ class NameMapOption:
     PRELIMINARY_SQL = TRUNCATE_NameMap_SQL
     RECORD_PACK_FOR_INSERT = 100000
 
+KladrObjects = [
+        SocBaseOption, AltNamesOption, KladrOption, StreetOption, DomaOption, NameMapOption
+    ]
 
 # ---------------------------------------------------------------------------------------
-if __name__ == "__main__":
-    pass
+if __name__ == "__main__": pass

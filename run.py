@@ -14,7 +14,8 @@ from options import (
     KladrOption,
     StreetOption,
     DomaOption,
-    NameMapOption
+    NameMapOption,
+    KladrObjects
 )
 from loggers import (
     one_logger,
@@ -46,6 +47,8 @@ MSSQL_ENGINE_STR = r"mssql+pymssql://sa:Exptsci123@192.168.1.78/kladr2"
 # logging on screen
 # run_ ^^^   vs class
 # dump to json
+# run_sync_all решить вопрос с логгерами
+# async via all
 
 def run_socrbase(logger: logging.Logger) -> int:
     logger.debug("Начало загрузки SocrBase")
@@ -126,12 +129,12 @@ def check_metatada(logger: logging.Logger) -> int:
         raise ValueError("=== \t".join[err_msg, (str(ex))])
 
 
-def run_sync() -> None:
+def run_synch() -> None:
     one_logger.debug("Начало синхронного импорта...")
     t0 = datetime.now()
     check_metatada(logger=one_logger)
-    print(run_socrbase(logger=one_logger))
-    print(run_altnames(logger=one_logger))
+    #print(run_socrbase(logger=one_logger))
+    #print(run_altnames(logger=one_logger))
     print(run_kladr(logger=one_logger))
     print(run_street(logger=one_logger))
     print(run_doma(logger=one_logger))
@@ -140,6 +143,30 @@ def run_sync() -> None:
     td = t1 - t0
     one_logger.debug(f"Синхронный импорт завершен. Общее время {td}")
     print(f"Синхронный импорт завершен. Общее время {td}")
+
+
+def run_synch_all() -> int:
+    print('Начало загрузки')
+    check_metatada(logger=one_logger)
+    total_rows = 0
+    t0 = datetime.now()
+    for op in KladrObjects:
+        print(f"Начало загрузки {op.CAPTION}")
+        one_logger.debug(f"Начало загрузки {op.CAPTION}")
+        t1 = datetime.now()
+        w = Worker(
+            option=op,
+            engine_str=MSSQL_ENGINE_STR,
+            logger=one_logger
+        )
+        rows = w()
+        total_rows += rows
+        td1 = datetime.now() - t1
+        print(f"Загрузка {op.CAPTION} завершена, всего загружено {rows}, длительность {td1}")
+        one_logger.debug(f"Загрузка {op.CAPTION} завершена, всего загружено {rows}, длительность {td1}")
+    td0 = datetime.now() - t0
+    print(f'Загрузка завершена, общая длительность {td0}')
+    return total_rows
 
 # def run_asynch() -> None:
 #     print(f"Старт асинхронного импорта...")
@@ -217,8 +244,9 @@ def run_asynch() -> None:
 
 
 def main():
-    #run_synch()  #Общее время 0:43:23.036586
-    run_asynch()  #Общее время 0:33:15.940001
+    #check_metatada(logger=one_logger)
+    print(run_synch_all())  #Общее время 0:43:23.036586
+    #run_asynch()  #Общее время 0:33:15.940001
     #run_asynch_2()   #33,766666667
 
 # ---------------------------------------------------------------------------------------
