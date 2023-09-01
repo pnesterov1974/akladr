@@ -5,8 +5,11 @@ import time
 from pathlib import Path
 from datetime import datetime
 
-from read_source import SourceFile
-from write_target import Target
+from sqlalchemy import create_engine
+
+#from read_source import SourceFile
+#from write_target import Target
+from logg import KladrLogs
 from worker import Worker
 from options import (
     SocBaseOption,
@@ -17,17 +20,17 @@ from options import (
     NameMapOption,
     KladrObjects
 )
-from loggers import (
-    one_logger,
-    socrbase_logger,
-    altnames_logger,
-    kladr_logger,
-    street_logger,
-    doma_logger,
-    namemap_logger,
-)
+# from loggers import (
+#     one_logger,
+#     socrbase_logger,
+#     altnames_logger,
+#     kladr_logger,
+#     street_logger,
+#     doma_logger,
+#     namemap_logger,
+# )
 from model_mssql import metadata
-from sqlalchemy import create_engine
+
 
 
 MSSQL_ENGINE_STR = r"mssql+pymssql://sa:Exptsci123@192.168.1.78/kladr2"
@@ -129,41 +132,42 @@ def check_metatada(logger: logging.Logger) -> int:
         raise ValueError("=== \t".join[err_msg, (str(ex))])
 
 
-def run_synch() -> None:
-    one_logger.debug("Начало синхронного импорта...")
-    t0 = datetime.now()
-    check_metatada(logger=one_logger)
-    #print(run_socrbase(logger=one_logger))
-    #print(run_altnames(logger=one_logger))
-    print(run_kladr(logger=one_logger))
-    print(run_street(logger=one_logger))
-    print(run_doma(logger=one_logger))
-    print(run_namemap(logger=one_logger))
-    t1 = datetime.now()
-    td = t1 - t0
-    one_logger.debug(f"Синхронный импорт завершен. Общее время {td}")
-    print(f"Синхронный импорт завершен. Общее время {td}")
+# def run_synch() -> None:
+#     one_logger.debug("Начало синхронного импорта...")
+#     t0 = datetime.now()
+#     check_metatada(logger=one_logger)
+#     #print(run_socrbase(logger=one_logger))
+#     #print(run_altnames(logger=one_logger))
+#     print(run_kladr(logger=one_logger))
+#     print(run_street(logger=one_logger))
+#     print(run_doma(logger=one_logger))
+#     print(run_namemap(logger=one_logger))
+#     t1 = datetime.now()
+#     td = t1 - t0
+#     one_logger.debug(f"Синхронный импорт завершен. Общее время {td}")
+#     print(f"Синхронный импорт завершен. Общее время {td}")
 
 
 def run_synch_all() -> int:
+    kl = KladrLogs(one_log=True, one_log_subname='kladr_one', options=None)   ########### None
     print('Начало загрузки')
-    check_metatada(logger=one_logger)
+    check_metatada(logger=kl.one_logger)
     total_rows = 0
     t0 = datetime.now()
     for op in KladrObjects:
         print(f"Начало загрузки {op.CAPTION}")
-        one_logger.debug(f"Начало загрузки {op.CAPTION}")
+        kl.one_logger.debug(f"Начало загрузки {op.CAPTION}")
         t1 = datetime.now()
         w = Worker(
             option=op,
             engine_str=MSSQL_ENGINE_STR,
-            logger=one_logger
+            logger=kl.one_logger
         )
         rows = w()
         total_rows += rows
         td1 = datetime.now() - t1
         print(f"Загрузка {op.CAPTION} завершена, всего загружено {rows}, длительность {td1}")
-        one_logger.debug(f"Загрузка {op.CAPTION} завершена, всего загружено {rows}, длительность {td1}")
+        kl.one_logger.debug(f"Загрузка {op.CAPTION} завершена, всего загружено {rows}, длительность {td1}")
     td0 = datetime.now() - t0
     print(f'Загрузка завершена, общая длительность {td0}')
     return total_rows

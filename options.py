@@ -43,7 +43,7 @@ class SocBaseOption(OptionBase):
     RECORD_PACK_FOR_INSERT = 1000
 
 
-class AltNamesOption:
+class AltNamesOption(OptionBase):
     CAPTION = "AltNames"
     SOURCE_FILEPATH = SOURCE_FOLDERPATH / "ALTNAMES.DBF"
     FIELD_MAPPING = {"oldcode": "OldCode", "newcode": "NewCode", "level": "Level"}
@@ -52,7 +52,7 @@ class AltNamesOption:
     RECORD_PACK_FOR_INSERT = 10000
 
 
-class KladrOption:
+class KladrOption(OptionBase):
     CAPTION = "Kladr"
     SOURCE_FILEPATH = SOURCE_FOLDERPATH / "KLADR.DBF"
     FIELD_MAPPING = {
@@ -70,7 +70,7 @@ class KladrOption:
     RECORD_PACK_FOR_INSERT = 100000
 
 
-class StreetOption:
+class StreetOption(OptionBase):
     CAPTION = "Street"
     SOURCE_FILEPATH = SOURCE_FOLDERPATH / "STREET.DBF"
     FIELD_MAPPING = {
@@ -87,7 +87,7 @@ class StreetOption:
     RECORD_PACK_FOR_INSERT = 100000
 
 
-class DomaOption:
+class DomaOption(OptionBase):
     CAPTION = "Doma"
     SOURCE_FILEPATH = SOURCE_FOLDERPATH / "DOMA.DBF"
     FIELD_MAPPING = {
@@ -105,7 +105,7 @@ class DomaOption:
     RECORD_PACK_FOR_INSERT = 100000
 
 
-class NameMapOption:
+class NameMapOption(OptionBase):
     CAPTION = "NameMap"
     SOURCE_FILEPATH = SOURCE_FOLDERPATH / "NAMEMAP.DBF"
     FIELD_MAPPING = {
