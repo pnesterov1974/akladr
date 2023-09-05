@@ -24,8 +24,8 @@ class Target:
         self.__preliminary_sql = preliminary_sql
         self.__field_mapping = field_mapping
         self.__insert_pack_reccount = insert_pack_reccount
-        self.__insert_packs = list()
-        self.__threads = list()
+        self.__insert_packs = None
+        self.__threads = None
         if not logger:
             raise ValueError("No logger for action")
         else:
@@ -67,32 +67,21 @@ class Target:
     def dump_to_json(self, json_filepath: str):
         pass
 
-    def __append_pack_new(self, pack: list) -> int:
+    def __append_insert_pack(self, pack: list) -> int:
         self.__insert_packs.append(pack)
         idx = len(self.__insert_packs) - 1
         return idx
     
-    def __tread_insert_pack(self, idx: int):
+    def __thread_insert_pack(self, idx: int):
         t = threading.Thread(
             target=self.__store_insert_pack_to_db_threaded, args={idx}
         )
         self.__threads.append(t)
         t.start()
 
-    #def __append_pack(self, pack: list) -> None:
-        # в список добавить и вернуть индекс
-    #    self.__insert_packs.append(pack)
-    #    idx = len(self.__insert_packs) - 1
-    #    print("Запуск нового потока")
-    #    thread = threading.Thread(
-    #        target=self.__store_insert_pack_to_db_threaded, args={idx}
-    #    )
-    #    self.__threads.append(thread)
-    #    thread.start()
-
-    #insert_paks = property(lambda self: self.__insert_packs)
-
     def process_sourcefile_threaded(self, exec_preliminary_sql=False) -> int:
+        self.__insert_packs = list()
+        self.__threads = list()
         if exec_preliminary_sql:
             self.__exec_preliminary_sql()
         t0 = datetime.now()
@@ -104,13 +93,8 @@ class Target:
                 t1 = datetime.now()
                 pack_select = t1 - t0
                 print(f"размер массива {len(rl)} сбор за время {pack_select}")
-                # self.__logger.debug(f'размер массива {len(rl)} сбор за время {pack_select}')
-                # self.__store_insert_pack_to_db(records=rl)
-                #self.__append_pack(pack=rl)
-
-                pidx = self.__append_pack_new(pack=rl)
-                self.__tread_insert_pack(pidx)
-
+                pidx = self.__append_insert_pack(pack=rl)
+                self.__thread_insert_pack(pidx)
                 rows_total += len(rl)
                 print(f"Объект {self.__sqla_target}, Всего загружено {rows_total}")
                 # self.__logger.debug(f'Объект {self.__sqla_target}, Всего загружено {rows_total}')
@@ -120,13 +104,8 @@ class Target:
             t1 = datetime.now()
             pack_select = t1 - t0
             print(f"размер массива {len(rl)} сбор за время {pack_select}")
-            # self.__logger.debug(f'размер массива {len(rl)} сбор за время {pack_select}')
-            # self.__store_insert_pack_to_db(records=rl)
-            #self.__append_pack(pack=rl)
-            
             pidx = self.__append_pack_new(pack=rl)
-            self.__tread_insert_pack(pidx)
-            
+            self.__thread_insert_pack(pidx)
             rows_total += len(rl)
             print(f"Объект {self.__sqla_target}, Всего загружено {rows_total}")
             # self.__logger.debug(f'Объект {self.__sqla_target}, Всего загружено {rows_total}')
@@ -134,16 +113,6 @@ class Target:
         for t in self.__threads:
             t.join()
         return rows_total
-    
-    def __apply_field_mapping(self, record: dict) -> dict:
-        new_record = dict()
-        print(record, type(record))
-        for k, v in record.items():
-            new_field_name = self.__field_mapping[k]
-            new_record[new_field_name] = v
-        print(new_record, type(new_record))
-        #d = {self.__field_mapping[k]: v for k, v in record.items()}
-        return new_record
 
     def process_sourcefile(self, exec_preliminary_sql=False) -> int:
         if exec_preliminary_sql:
@@ -154,8 +123,6 @@ class Target:
         for r in self.__source:
             rr = {self.__field_mapping[k]: v for k, v in r.items()}
             rl.append(rr)
-            # if len(rl)<5:
-            #     self.apply_field_mapping(r)
             if len(rl) >= self.__insert_pack_reccount:
                 t1 = datetime.now()
                 pack_select = t1 - t0
@@ -163,7 +130,6 @@ class Target:
                 self.__logger.debug(
                     f"размер массива {len(rl)} сбор за время {pack_select}"
                 )
-                #self.__append_pack_new(pack=rl)
                 self.__store_insert_pack_to_db(records=rl)
                 rows_total += len(rl)
                 # print(f'Объект {self.__sqla_target}, Всего загружено {rows_total}')

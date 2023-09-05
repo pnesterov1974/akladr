@@ -1,6 +1,4 @@
 import logging
-#from sqlalchemy import Table
-#from sqlalchemy.sql.elements import TextClause
 
 from read_source import SourceFile
 from write_target import Target

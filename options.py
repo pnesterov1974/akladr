@@ -118,8 +118,12 @@ class NameMapOption(OptionBase):
     PRELIMINARY_SQL = TRUNCATE_NameMap_SQL
     RECORD_PACK_FOR_INSERT = 100000
 
+# KladrObjects = [
+#         SocBaseOption, AltNamesOption, KladrOption, StreetOption, DomaOption, NameMapOption
+#     ]
+
 KladrObjects = [
-        SocBaseOption, AltNamesOption, KladrOption, StreetOption, DomaOption, NameMapOption
+        SocBaseOption, AltNamesOption, KladrOption,# StreetOption, DomaOption, NameMapOption
     ]
 
 # ---------------------------------------------------------------------------------------
