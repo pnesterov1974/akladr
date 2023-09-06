@@ -6,17 +6,15 @@ from read_source import SourceFile
 class WriteToJson:
 
     def __init__(self, source: SourceFile, target_filepath: str) -> None:
-        self.__source = SourceFile
+        self.__source = source
         self.__target = target_filepath
 
     def dump_to_json(self) -> int:
         #Path("data.json").write_text(json.dumps(data))
-        #s = [r for r in self.__source]
-        for r in self.__source:
-            print(r)
-        return
+        s = [r for r in self.__source]
         with open(self.__target, 'w', encoding='utf-8') as f:
             json.dump(s, f, ensure_ascii=False, indent=4)
+        print(len(s))
         return len(s)
 
     def test_json(self) -> None:
@@ -39,10 +37,6 @@ if __name__ == "__main__": #pass
             "kod_t_st": "KodTST",
         }
     )
-    print(sf)
-    print(type(sf))
-    #for r in sf:
-    #    print(r)
     JSON_FOLDERPATH = (
         Path("/") / "home" / "pnesterov" / "my_dev" / "files" / "kladr"
     )

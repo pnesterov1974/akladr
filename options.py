@@ -1,4 +1,5 @@
 from pathlib import Path
+from enum import Enum
 
 from model_mssql import (
     SocrBase,
@@ -15,13 +16,21 @@ from model_mssql import (
     TRUNCATE_NameMap_SQL,
 )
 
+class SourceTypes(Enum):
+    DBF = 1
+    Unknown = 2
+
+class TargetTypes(Enum):
+    MSSQL = 1
+    JSON = 2
+
 SOURCE_FOLDERPATH = (
     Path("/") / "home" / "pnesterov" / "my_dev" / "files" / "kladr" / "dbf"
 )
 
 
 class OptionBase:
-    CAPTION = ''
+    CAPTION = ""
     SOURCE_FILEPATH = SOURCE_FOLDERPATH
     FIELD_MAPPING = {}
     TARGET_SQLA = None
@@ -30,6 +39,7 @@ class OptionBase:
 
 
 class SocBaseOption(OptionBase):
+    SOURCE = SourceTypes.DBF
     CAPTION = "SocrBase"
     SOURCE_FILEPATH = SOURCE_FOLDERPATH / "SOCRBASE.DBF"
     FIELD_MAPPING = {
@@ -39,6 +49,7 @@ class SocBaseOption(OptionBase):
         "kod_t_st": "KodTST",
     }
     TARGET_SQLA = SocrBase
+    TARGET = TargetTypes.MSSQL
     PRELIMINARY_SQL = TRUNCATE_SocrBase_SQL
     RECORD_PACK_FOR_INSERT = 1000
 
@@ -46,7 +57,11 @@ class SocBaseOption(OptionBase):
 class AltNamesOption(OptionBase):
     CAPTION = "AltNames"
     SOURCE_FILEPATH = SOURCE_FOLDERPATH / "ALTNAMES.DBF"
-    FIELD_MAPPING = {"oldcode": "OldCode", "newcode": "NewCode", "level": "Level"}
+    FIELD_MAPPING = {
+        "oldcode": "OldCode", 
+        "newcode": "NewCode", 
+        "level": "Level"
+    }
     TARGET_SQLA = AltNames
     PRELIMINARY_SQL = TRUNCATE_AltNames_SQL
     RECORD_PACK_FOR_INSERT = 10000
@@ -118,13 +133,17 @@ class NameMapOption(OptionBase):
     PRELIMINARY_SQL = TRUNCATE_NameMap_SQL
     RECORD_PACK_FOR_INSERT = 100000
 
+
 # KladrObjects = [
 #         SocBaseOption, AltNamesOption, KladrOption, StreetOption, DomaOption, NameMapOption
 #     ]
 
 KladrObjects = [
-        SocBaseOption, AltNamesOption, KladrOption,# StreetOption, DomaOption, NameMapOption
-    ]
+    SocBaseOption,
+    AltNamesOption,
+    KladrOption,  # StreetOption, DomaOption, NameMapOption
+]
 
 # ---------------------------------------------------------------------------------------
-if __name__ == "__main__": pass
+if __name__ == "__main__":
+    pass
