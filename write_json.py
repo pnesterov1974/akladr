@@ -1,5 +1,5 @@
 import json
-from pathlib import Path
+#from pathlib import Path
 
 from read_source import SourceFile
 
@@ -10,7 +10,6 @@ class WriteToJson:
         self.__target = target_filepath
 
     def dump_to_json(self) -> int:
-        #Path("data.json").write_text(json.dumps(data))
         s = [r for r in self.__source]
         with open(self.__target, 'w', encoding='utf-8') as f:
             json.dump(s, f, ensure_ascii=False, indent=4)
@@ -25,22 +24,22 @@ class WriteToJson:
 
 # ---------------------------------------------------------------------------------------
 if __name__ == "__main__": #pass
-    SOURCE_FOLDERPATH = (
-        Path("/") / "home" / "pnesterov" / "my_dev" / "files" / "kladr" / "dbf"
-    )
-    sf = SourceFile(
-        source_filepath=SOURCE_FOLDERPATH / "SOCRBASE.DBF",
-        field_mapping={
-            "level": "Level",
-            "scname": "ScName",
-            "socrname": "SocrName",
-            "kod_t_st": "KodTST",
-        }
-    )
-    JSON_FOLDERPATH = (
-        Path("/") / "home" / "pnesterov" / "my_dev" / "files" / "kladr"
-    )
-    wtj = WriteToJson(source=sf, target_filepath= JSON_FOLDERPATH / 'socrbase.json')
-    wtj.dump_to_json()
-    wtj.test_json()
+    # SOURCE_FOLDERPATH = (
+    #     Path("/") / "home" / "pnesterov" / "my_dev" / "files" / "kladr" / "dbf"
+    # )
+    # sf = SourceFile(
+    #     source_filepath=SOURCE_FOLDERPATH / "SOCRBASE.DBF",
+    #     field_mapping={
+    #         "level": "Level",
+    #         "scname": "ScName",
+    #         "socrname": "SocrName",
+    #         "kod_t_st": "KodTST",
+    #     }
+    # )
+    # JSON_FOLDERPATH = (
+    #     Path("/") / "home" / "pnesterov" / "my_dev" / "files" / "kladr"
+    # )
+    # wtj = WriteToJson(source=sf, target_filepath= JSON_FOLDERPATH / 'socrbase.json')
+    # wtj.dump_to_json()
+    # wtj.test_json()
 

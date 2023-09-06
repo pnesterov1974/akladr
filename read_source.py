@@ -1,5 +1,4 @@
 from collections.abc import Iterator
-#from pathlib import Path
 
 from dbf_light import Dbf
 
@@ -10,7 +9,6 @@ class SourceFile:
         self.__field_list = list(field_mapping.keys())
 
     def __iter__(self) -> Iterator[dict]:
-    #def __iter__(self):
         with Dbf.open(self.__source_filepath) as dbf:
             for r in dbf:  # try here
                 d = dict()
